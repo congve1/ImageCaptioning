@@ -1,0 +1,36 @@
+# compilation and distribution
+__pycache__
+_ext
+*.pyc
+*.so
+image_captioning.egg-info/
+build/
+dist/
+
+# pytorch/python/numpy formats
+*.pth
+*.pkl
+*.npy
+
+# jupyter notebooks
+*.ipynb
+**/.ipynb_checkpoints
+
+# Editor tempories
+*.swn
+*.swo
+*.swp
+*~
+
+# Pycharm editor settings
+.idea
+
+# vscode editor settings
+.vscode
+
+# project dir
+/datasets
+/models
+save
+runs
+coco-caption
