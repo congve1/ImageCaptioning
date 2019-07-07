@@ -52,3 +52,9 @@ class ChannelModelNoConv(AttDecoder):
     def __init__(self, cfg):
         super(ChannelModelNoConv, self).__init__(cfg)
         self.core = build_decoder_core(cfg, len(self.vocab), "ChannelCoreNoConv")
+
+@registry.DECODER_MODELS.register("SelfAtt")
+class ChannelModelNoConv(AttDecoder):
+    def __init__(self, cfg):
+        super(ChannelModelNoConv, self).__init__(cfg)
+        self.core = build_decoder_core(cfg, len(self.vocab), "SelfAttCore")

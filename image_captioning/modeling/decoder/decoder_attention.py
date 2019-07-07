@@ -127,3 +127,28 @@ class ChannelAttention(nn.Module):
             weights.unsqueeze(1), att_features
         )
         return weighted_att_features.squeeze(1), weights
+
+
+@registry.DECODER_ATTENTIONS.register("SelfAttention")
+class SelfAttention(nn.Module):
+    def __init__(self, cfg):
+        super(SelfAttention, self).__init__()
+        att_size=cfg.MODEL.ENCODER.FEATURE_SIZE
+        att_hid_size = cfg.MODEL.DECODER.ATT_HIDDEN_SIZE
+        self.query_conv = nn.Conv2d(in_channels=att_hid_size, out_channels=att_size//8, kernel_size=1)
+        self.key_conv = nn.Conv2d(in_channels=att_hid_size, out_channels=att_size//8, kernel_size=1)
+        self.val_conv = nn.Conv2d(in_channels=att_hid_size, out_channels=att_hid_size, kernel_size=1)
+
+        self.softmax = nn.Softmax(dim=-1)
+
+    def forward(self, att_features, h):
+        B, H, W, C = att_features.size()
+        att_features = torch.reshape(att_features, (B, C, H, W))
+        query_proj = self.query_conv(att_features).view(B, -1, H*W).permute(0, 2, 1)
+        key_proj = self.key_conv(att_features).view(B, -1, H*W)
+        energy = torch.bmm(query_proj, key_proj)
+        attention_weights = self.softmax(energy).permute(0, 2, 1)
+        val_proj = self.val_conv(att_features).view(B, -1, H*W)
+        out = torch.bmm(val_proj, attention_weights)
+        out = torch.mean(out, dim=1)
+        return out, attention_weights.reshape(B, -1)
